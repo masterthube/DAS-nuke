@@ -1,11 +1,18 @@
-# VIEWER_PROCESS
-# nuke.pluginAddPath("viewer_process")
-# nuke.ViewerProcess.register("sRGB", nuke.Node, ("sRGB", ""))
+import nuke
+import sys
+import os
 
 nuke.pluginAddPath("NukeSurvivalToolkit")
 nuke.pluginAddPath("pixelfudger3")
 nuke.pluginAddPath("stamps")
 nuke.pluginAddPath("C:/Users/dario/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0/LocalCache/local-packages/Python313/site-packages")
 # nuke.pluginAddPath("DS")
+
+try:
+    import NukeFaceTrack.bridge as mp_bridge
+    mp_bridge.init_bridge()
+    print("NukeFaceTrack: Bridge Initialized")
+except ImportError as e:
+    nuke.tprint(f"NukeFaceTrack: Import Failed: {e}")
 
 print(f"Welcome to hell, Dario")

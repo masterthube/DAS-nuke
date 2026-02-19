@@ -2,7 +2,8 @@ import os
 import nuke
 from pathlib import Path
 import comfyui2nuke as comfyui
-import KnobScripter
+
+
 
 ##############################################################################
 ####################-------------DEFAULTS-------------########################
