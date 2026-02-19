@@ -1,13 +1,32 @@
-<?xml version="1.0" encoding="UTF-8"?><script>from NukeFaceTrack import core, ui
-import nuke
+<?xml version="1.0" encoding="UTF-8"?><script>import nuke
+from NukeFaceTrack import core, ui
+import importlib
 
-# Setup
-node = nuke.selectedNode()
-proc = core.FaceProcessor()
-start = int(nuke.Root()['first_frame'].value())
+# Reload to ensure Nuke sees the new Class and Functions
+importlib.reload(core)
+importlib.reload(ui)
 
-# 1. Process 20 frames (Fast test)
-data = proc.run_range(node, start, start + 20)
+def run_tool():
+    node = nuke.selectedNode()
+    if not node:
+        nuke.message(&quot;Select a node first.&quot;)
+        return
+        
+    p = ui.FaceTrackUI(node)
+    if p.showModalDialog():
+        rng_str = p.range.value()
+        try:
+            first, last = map(int, rng_str.split('-'))
+        except:
+            nuke.message(&quot;Invalid range. Use format: 1-10&quot;)
+            return
+            
+        proc = core.FaceProcessor()
+        data = proc.run_range(node, first, last)
+        
+        if data:
+            ui.create_all_tools(data, node)
+        else:
+            nuke.message(&quot;Processing failed: No faces detected.&quot;)
 
-# 2. Build the tools
-ui.create_all_tools(data, node)</script>
+run_tool()</script>

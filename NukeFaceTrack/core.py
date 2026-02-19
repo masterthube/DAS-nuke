@@ -1,97 +1,63 @@
-import nuke
 import cv2
-import os
-import mp_face_mesh
+import mediapipe as mp
+import numpy as np
+import nuke
+import time
 
 class FaceProcessor:
     def __init__(self):
-        # Initialize the MediaPipe FaceMesh engine in high-accuracy mode
-        self.engine = mp_face_mesh.FaceMesh(
-            static_image_mode=True, 
-            max_num_faces=1,
-            refine_landmarks=True
+        self.mp_face_mesh = mp.solutions.face_mesh
+        self.face_mesh = self.mp_face_mesh.FaceMesh(
+            static_image_mode=True,
+            refine_landmarks=True,
+            min_detection_confidence=0.5
         )
         
-        # Mapping specific indices to human-readable names
-        # Forehead (10), Chin (152), Left Eye (33), Right Eye (263)
-        self.map = {
-            "nose": 1,
-            "l_eye": 33,
-            "r_eye": 263,
-            "mouth_top": 13,
-            "chin": 152,
-            "forehead": 10
+        self.GROUPS = {
+            "silhouette": [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109],
+            "l_eye": [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
+            "r_eye": [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398],
+            "lips": [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95, 185, 40, 39, 37, 0, 267, 269, 270, 409]
         }
 
-    def extract_frame(self, node, frame):
-        """Renders a frame, analyzes landmarks, and converts to Nuke pixel space."""
-        # 1. Get Node Resolution (The tracking must match the input size)
-        w = node.width()
-        h = node.height()
-
-        # 2. Render Temporary Frame for Analysis
-        temp_file = os.path.join(os.environ['TEMP'], f"mp_analysis_{frame}.jpg").replace("\\", "/")
-        write = nuke.nodes.Write(file=temp_file, file_type="jpeg", _jpeg_quality=0.8)
-        write.setInput(0, node)
-        
-        try:
-            nuke.execute(write, frame, frame)
-        finally:
-            nuke.delete(write)
-
-        # 3. MediaPipe Processing
-        img = cv2.imread(temp_file)
-        if img is None:
-            return None
-        
-        # Convert BGR (OpenCV) to RGB (MediaPipe)
-        results = self.engine.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        
-        # Cleanup disk immediately
-        if os.path.exists(temp_file):
-            os.remove(temp_file)
-
-        if not results.multi_face_landmarks:
-            return None
-
-        # 4. Data Extraction & Coordinate Transformation
-        landmarks = results.multi_face_landmarks[0].landmark
-        frame_data = {}
-        
-        for name, idx in self.map.items():
-            lm = landmarks[idx]
-            
-            # X Calculation: Normalized value * Width
-            pixel_x = lm.x * w
-            
-            # Y Calculation: MediaPipe is 0 (top), Nuke is 0 (bottom).
-            # Transformation: (1 - normalized_y) * Height
-            pixel_y = (1 - lm.y) * h 
-            
-            frame_data[name] = (pixel_x, pixel_y)
-            
-        return frame_data
-
     def run_range(self, node, start, end):
-        """Processes a sequence and returns a dict of results."""
-        all_data = {}
-        
-        # Create a progress bar in the Nuke UI
-        task = nuke.ProgressTask("Tracking Face...")
-        total_frames = end - start + 1
+        face_session = {}
+        # Ensure we are using the format of the incoming node
+        w, h = node.width(), node.height()
+        proc_res = 512 
 
-        for i, frame in enumerate(range(start, end + 1)):
-            if task.isCancelled():
-                nuke.message("Tracking Cancelled by User.")
-                break
-                
-            task.setMessage(f"Processing: Frame {frame}")
-            data = self.extract_frame(node, frame)
+        ct = nuke.nodes.CurveTool(inputs=[node])
+        
+        for f in range(start, end + 1):
+            rgb_buffer = np.zeros((proc_res, proc_res, 3), dtype=np.uint8)
+            nuke.execute(ct, f, f) 
+
+            for y in range(proc_res):
+                sample_y = (y / float(proc_res)) * h
+                for x in range(proc_res):
+                    sample_x = (x / float(proc_res)) * w
+                    
+                    # Manual clip and scale
+                    r = max(0, min(1, node.sample('r', sample_x, sample_y, f)))
+                    g = max(0, min(1, node.sample('g', sample_x, sample_y, f)))
+                    b = max(0, min(1, node.sample('b', sample_x, sample_y, f)))
+                    
+                    # MediaPipe wants (0,0) at top-left
+                    rgb_buffer[(proc_res - 1) - y, x] = [int(r*255), int(g*255), int(b*255)]
+
+            results = self.face_mesh.process(rgb_buffer)
             
-            if data:
-                all_data[frame] = data
+            if results.multi_face_landmarks:
+                mesh = results.multi_face_landmarks[0]
+                frame_data = {}
+                for name, indices in self.GROUPS.items():
+                    # COORDINATE FIX: lm.x * w gives us the absolute Nuke pixel X.
+                    # (1.0 - lm.y) * h flips it from AI space to Nuke space.
+                    frame_data[name] = [(lm.x * w, (1.0 - lm.y) * h) for lm in [mesh.landmark[i] for i in indices]]
+                face_session[f] = frame_data
+                print(f"Frame {f}: Success.")
+            else:
+                print(f"Frame {f}: No face found.")
             
-            # Update progress bar percentage
-            task.setProgress(int((i / total_frames) * 100))
-            
-        return all_data
+        nuke.delete(ct)
+        return face_session
