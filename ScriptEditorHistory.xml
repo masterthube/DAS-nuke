@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><script>from NukeFaceTrack import core, ui
+import nuke
 
-# 1. Setup
-proc = core.FaceProcessor()
+# Setup
 node = nuke.selectedNode()
+proc = core.FaceProcessor()
 start = int(nuke.Root()['first_frame'].value())
 
-# 2. Extract 11 frames
-data = proc.run_range(node, start, start + 10)
+# 1. Process 20 frames (Fast test)
+data = proc.run_range(node, start, start + 20)
 
-# 3. Build (Using the new Roto function)
-ui.create_face_roto(data)</script>
+# 2. Build the tools
+ui.create_all_tools(data, node)</script>
