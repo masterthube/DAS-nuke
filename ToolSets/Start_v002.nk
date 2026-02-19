@@ -1,0 +1,629 @@
+set cut_paste_input [stack 0]
+version 16.0 v8
+BackdropNode {
+ inputs 0
+ name BackdropNode5
+ tile_color 0xaaaaaa00
+ label Plate
+ note_font_size 42
+ selected true
+ xpos 4693
+ ypos 122
+ bdwidth 301
+ bdheight 240
+}
+BackdropNode {
+ inputs 0
+ name BackdropNode6
+ tile_color 0x3eaaaaff
+ label CG
+ note_font_size 42
+ selected true
+ xpos 3628
+ ypos 259
+ bdwidth 347
+ bdheight 603
+}
+BackdropNode {
+ inputs 0
+ name BackdropNode7
+ tile_color 0x388e8e00
+ label Final
+ note_font_size 42
+ selected true
+ xpos 4445
+ ypos 2934
+ bdwidth 303
+ bdheight 274
+}
+BackdropNode {
+ inputs 0
+ name BackdropNode8
+ tile_color 0x388e8e00
+ label "\t   Preview"
+ note_font_size 42
+ selected true
+ xpos 4768
+ ypos 2936
+ bdwidth 370
+ bdheight 276
+}
+Dot {
+ inputs 0
+ name Dot10
+ note_font_size 50
+ selected true
+ xpos 3860
+ ypos 820
+}
+push $cut_paste_input
+Dot {
+ name Dot2
+ note_font_size 72
+ selected true
+ xpos 4837
+ ypos 284
+}
+set Ndb255400 [stack 0]
+Merge2 {
+ inputs 2
+ name Merge2
+ selected true
+ xpos 4803
+ ypos 817
+}
+Dot {
+ name Dot3
+ note_font_size 72
+ selected true
+ xpos 4837
+ ypos 2660
+}
+set Ndb255800 [stack 0]
+Dot {
+ name Dot4
+ note_font_size 72
+ selected true
+ xpos 4727
+ ypos 2660
+}
+Keyer {
+ invert true
+ operation "luminance key"
+ name Keyer1
+ selected true
+ xpos 4693
+ ypos 2675
+}
+Grade {
+ channels alpha
+ black 0.45
+ white_clamp true
+ name Grade1
+ selected true
+ xpos 4693
+ ypos 2723
+}
+Dot {
+ name Dot5
+ note_font_size 72
+ selected true
+ xpos 4727
+ ypos 2780
+}
+push $Ndb255800
+Group {
+ inputs 2
+ name GrainAdvanced2
+ help "Adds synthetic grain. \n\nThe defaults are setup to simulate an HD Alexa plate's grain.\n\nYou can adjust the sliders to match a sample piece of grain. Find a sample with a rather constant background, blur it to remove the grain, and use as input to this. View with a wipe in the viewer so you can make a match. It helps to view and match each of the red, green, blue separately."
+ tile_color 0x323232ff
+ note_font_color 0xb80045ff
+ selected true
+ xpos 4803
+ ypos 2772
+ disable true
+ addUserKnob {20 grain_tab l Grain}
+ addUserKnob {3 seed t "Change this value to make different instances of this operator produce different noise"}
+ seed 134
+ addUserKnob {26 "" l "@b;Size"}
+ addUserKnob {14 red_size l red R 0 100}
+ red_size 3.6
+ addUserKnob {14 green_size l green R 0 100}
+ green_size 2.4
+ addUserKnob {14 blue_size l blue R 0 100}
+ blue_size 4.6
+ addUserKnob {7 irregularity}
+ irregularity 0.8
+ addUserKnob {26 Intensity l "@b;Intensity Bright"}
+ addUserKnob {7 red_m l red t "Amount of grain to add to a white pixel"}
+ red_m 0.085
+ addUserKnob {7 green_m l green}
+ green_m 0.175
+ addUserKnob {7 blue_m l blue}
+ blue_m 0.33
+ addUserKnob {26 Darks l "@b;Intensity Darks"}
+ addUserKnob {7 red_i l red R 0 0.2}
+ red_i 0.0337
+ addUserKnob {7 green_i l green R 0 0.2}
+ green_i 0.0154
+ addUserKnob {7 blue_i l blue R 0 0.2}
+ blue_i 0.019
+ addUserKnob {26 Softness l "@b;Softness"}
+ addUserKnob {7 red_soft l red R 0 2}
+ red_soft 0.14
+ addUserKnob {7 green_soft l green R 0 2}
+ green_soft 0.42
+ addUserKnob {7 blue_soft l blue R 0 2}
+ blue_soft 0.54
+ addUserKnob {26 Globals l "@b;Global Controls"}
+ addUserKnob {7 saturation l "Grain Saturation" t "Control how saturated the grain appears"}
+ saturation 0.325
+ addUserKnob {7 aspect_ratio l "Aspect Ratio" t "Edit the aspect ratio of the grain to match anamorphic plates." R 0.5 2}
+ aspect_ratio 1
+ addUserKnob {4 ar_filter l " " t "Set the filter on the aspect ratio transform" -STARTLINE M {Impulse Cubic ""}}
+ ar_filter Cubic
+ addUserKnob {6 apply_alpha l "Apply only through alpha" +STARTLINE}
+ apply_alpha true
+ addUserKnob {6 invert_alpha l "Invert alpha" -STARTLINE}
+ addUserKnob {6 invert_mask l "Invert mask" -STARTLINE}
+ addUserKnob {7 mix}
+ mix 0.605
+ addUserKnob {26 ""}
+ addUserKnob {26 spin_copyright l "" t "© <b>SPIN<span style=\"color:#b32026\">VFX</span></b>\nGrain_Advanced\nVersion 1.1\n2017" +STARTLINE T "<span style=\"color:#aaa;font-family:sans-serif;font-size:8pt\"><b>SPIN<span style=\"color:#b32026\">VFX</span></b> - Version 1.1 - 2017 - <a href=\"https://github.com/SpinVFX/spin_nuke_gizmos/\" style=\"color:#aaa\">Github Page</a></span>"}
+}
+ Input {
+  inputs 0
+  name mask
+  xpos 368
+  ypos 675
+  number 1
+ }
+ Input {
+  inputs 0
+  name img
+  xpos 34
+  ypos -150
+ }
+ Dot {
+  name Dot1
+  tile_color 0xcccccc00
+  xpos 68
+  ypos -58
+ }
+set N3cef2800 [stack 0]
+ Dot {
+  name Dot5
+  tile_color 0xcccccc00
+  xpos -75
+  ypos -58
+ }
+set N3cef2c00 [stack 0]
+ Dot {
+  name Dot6
+  tile_color 0xcccccc00
+  xpos -146
+  ypos -58
+ }
+ Dot {
+  name Dot7
+  tile_color 0xcccccc00
+  xpos -146
+  ypos 679
+ }
+push $N3cef2c00
+ Shuffle {
+  alpha white
+  name Shuffle1
+  xpos -109
+  ypos 86
+  disable {{parent.apply_alpha}}
+ }
+ Dot {
+  name Dot4
+  tile_color 0x9e3c6300
+  xpos -76
+  ypos 557
+ }
+push $N3cef2800
+ Dot {
+  name Dot2
+  tile_color 0xcccccc00
+  xpos 164
+  ypos -58
+ }
+set N3cef3c00 [stack 0]
+ Noise {
+  output {rgba.red -rgba.green -rgba.blue -rgba.alpha}
+  cliptype none
+  replace true
+  size {{parent.red_size.w} {parent.red_size.h}}
+  zoffset {{frame+seed+(irregularity/2)}}
+  octaves 2
+  gamma 1
+  xrotate {{irregularity*45}}
+  yrotate {{irregularity*45}}
+  name red
+  xpos 252
+  ypos -62
+ }
+ Noise {
+  output {-rgba.red rgba.green -rgba.blue -rgba.alpha}
+  cliptype none
+  replace true
+  size {{parent.green_size.w} {parent.green_size.h}}
+  zoffset {{frame+6+seed+(irregularity/2)}}
+  octaves 2
+  gamma 1
+  xrotate {{irregularity*45}}
+  yrotate {{irregularity*45}}
+  name green
+  xpos 252
+  ypos -19
+ }
+ Noise {
+  output {-rgba.red -rgba.green rgba.blue -rgba.alpha}
+  cliptype none
+  replace true
+  size {{parent.blue_size.w} {parent.blue_size.h}}
+  zoffset {{frame+3*seed+(irregularity/2)}}
+  octaves 2
+  gamma 1
+  xrotate {{irregularity*45}}
+  yrotate {{irregularity*45}}
+  name blue
+  xpos 252
+  ypos 20
+ }
+ Transform {
+  scale {{parent.aspect_ratio>1?parent.aspect_ratio:1 x3 0} {parent.aspect_ratio<1?1/parent.aspect_ratio:1 x3 0}}
+  filter {{parent.ar_filter}}
+  shutteroffset centred
+  name Scale_Ratio
+  xpos 252
+  ypos 62
+ }
+ Blur {
+  channels {rgba.red -rgba.green -rgba.blue none}
+  size {{parent.red_soft}}
+  name Blur1
+  label "size \[value size]"
+  xpos 252
+  ypos 122
+ }
+ Blur {
+  channels {-rgba.red rgba.green -rgba.blue none}
+  size {{parent.green_soft}}
+  name Blur2
+  label "size \[value size]"
+  xpos 252
+  ypos 173
+ }
+ Blur {
+  channels {-rgba.red -rgba.green rgba.blue none}
+  size {{parent.blue_soft}}
+  name Blur3
+  label "size \[value size]"
+  xpos 252
+  ypos 223
+ }
+ Grade {
+  multiply 2
+  add -1
+  black_clamp false
+  name Grade1
+  xpos 252
+  ypos 295
+ }
+push $N3cef3c00
+ Grade {
+  black {{parent.red_i} {parent.green_i} {parent.blue_i} {curve}}
+  white {{parent.red_m} {parent.green_m} {parent.blue_m} {curve}}
+  name Grade4
+  xpos 130
+  ypos 422
+ }
+ Merge2 {
+  inputs 2
+  operation multiply
+  bbox B
+  name Merge3
+  xpos 252
+  ypos 422
+ }
+ Saturation {
+  saturation {{parent.saturation}}
+  name Saturation1
+  xpos 252
+  ypos 465
+ }
+ Dot {
+  name Dot3
+  tile_color 0x7aa9ff00
+  xpos 286
+  ypos 557
+ }
+push $N3cef2800
+ Merge2 {
+  inputs 2+1
+  operation plus
+  bbox B
+  output rgb
+  invert_mask {{invert_alpha}}
+  mix {{parent.mix}}
+  name Merge4
+  xpos 34
+  ypos 553
+ }
+ Keymix {
+  inputs 3
+  invertMask {{!invert_mask}}
+  name Keymix1
+  xpos 34
+  ypos 669
+  disable {{"!\[exists parent.input1] "}}
+ }
+ Output {
+  name Output1
+  xpos 34
+  ypos 758
+ }
+end_group
+Crop {
+ box {0 0 4096 2160}
+ name Crop2
+ selected true
+ xpos 4803
+ ypos 2873
+}
+Dot {
+ name Dot6
+ note_font_size 72
+ selected true
+ xpos 4837
+ ypos 2996
+}
+set Ne259f400 [stack 0]
+Dot {
+ name Dot7
+ note_font_size 72
+ selected true
+ xpos 4539
+ ypos 2996
+}
+Write {
+ file "D:/WORK/CLIENTS/04_Ehrlich Brothers/OUT/\[file rootname \[file tail \[value root.name]]].mov"
+ file_type mov
+ mov64_format "mov (QuickTime / MOV)"
+ mov64_codec appr
+ mov_h264_codec_profile "High 4:2:0 8-bit"
+ mov64_pixel_format {
+  {0}
+  "yuv420p\tYCbCr 4:2:0 8-bit"
+ }
+ mov64_quality High
+ mov64_fast_start true
+ mov64_write_timecode true
+ mov64_gop_size 12
+ mov64_b_frames 0
+ mov64_bitrate 20000
+ mov64_bitrate_tolerance 4000000
+ mov64_quality_min 1
+ mov64_quality_max 3
+ colorspace rec709
+ checkHashOnRead false
+ version 15
+ in_colorspace scene_linear
+ out_colorspace scene_linear
+ ocioColorspace scene_linear
+ display default
+ view sRGB
+ name Write6
+ selected true
+ xpos 4505
+ ypos 3091
+}
+Text2 {
+ inputs 0
+ font_size_toolbar 100
+ font_width_toolbar 100
+ font_height_toolbar 100
+ message v004
+ old_message {
+  {118 48 48 52}
+ }
+ box {1906 160 2726 320}
+ xjustify center
+ yjustify center
+ transforms {
+  {0 2}
+ }
+ cursor_position 4
+ center {1112 774}
+ cursor_initialised true
+ autofit_bbox false
+ initial_cursor_position {
+  {2224.100098 1548}
+ }
+ group_animations {
+  {0}
+  imported:
+  0
+  selected:
+  items:
+  "root transform/"
+ }
+ animation_layers {
+  {1 11 1112 774 0 0 1 1 0 0 0 0}
+ }
+ name Text2
+ selected true
+ xpos 5459
+ ypos 3013
+}
+push $cut_paste_input
+Reformat {
+ name Reformat1
+ selected true
+ xpos 5349
+ ypos 3013
+}
+Text2 {
+ font_size_toolbar 100
+ font_width_toolbar 100
+ font_height_toolbar 100
+ message "original comp"
+ old_message {
+  {111 114 105 103 105 110 97 108 32 99 111 109 112}
+ }
+ box {1906 160 2726 320}
+ xjustify center
+ yjustify center
+ transforms {
+  {0 2}
+ }
+ cursor_position 13
+ center {1112 774}
+ cursor_initialised true
+ autofit_bbox false
+ initial_cursor_position {
+  {2224.100098 1548}
+ }
+ group_animations {
+  {0}
+  imported:
+  0
+  selected:
+  items:
+  "root transform/"
+ }
+ animation_layers {
+  {1 11 1112 774 0 0 1 1 0 0 0 0}
+ }
+ name Text3
+ selected true
+ xpos 5349
+ ypos 3061
+}
+ContactSheet {
+ inputs 2
+ width {{input.width*columns}}
+ height {{input.height*rows}}
+ rows {{"\[expr \{int( (sqrt( \[numvalue inputs] ) ) )\} ] * \[expr \{int( ceil ( (\[numvalue inputs] /(sqrt( \[numvalue inputs] ) ) )) )\} ] < \[numvalue inputs]   ? \[expr \{int( (sqrt( \[numvalue inputs] ) ) )\} ] +1 : \[expr \{int( (sqrt( \[numvalue inputs] ) ) )\} ]"}}
+ columns {{"\[expr \{int( ceil ( (\[numvalue inputs] /(sqrt( \[numvalue inputs] )) )) )\} ]"}}
+ center true
+ roworder TopBottom
+ name ContactSheetAuto1
+ tile_color 0xff69f7ff
+ selected true
+ xpos 5459
+ ypos 3109
+ addUserKnob {20 Settings}
+ addUserKnob {7 resMult l "Resolution Multiplier" R 0.1 2}
+ resMult 1
+}
+push $Ndb255400
+Write {
+ file "D:/WORK/CLIENTS/04_Ehrlich Brothers/IN/00_plates/a026_s0210_c38_az2_tc19003137_v002_DEN_####.exr"
+ file_type exr
+ metadata "no metadata"
+ first_part rgba
+ colorspace rec709
+ version 1
+ in_colorspace scene_linear
+ out_colorspace scene_linear
+ ocioColorspace scene_linear
+ display default
+ view sRGB
+ name Write5
+ label "Channels: \[string toupper \[value channel]]"
+ selected true
+ xpos 5114
+ ypos 263
+}
+NoOp {
+ inputs 0
+ name SetLast1
+ tile_color 0xff5f00ff
+ selected true
+ xpos 4540
+ ypos 281
+ hide_input true
+ addUserKnob {20 User}
+ addUserKnob {22 setLast l "Set Last Frame" t "Set last frame of readNode upstreaming Dot30" T "dot = nuke.toNode(\"Dot30\")\ninput_node = dot.input(0)\n\nif input_node.Class() == \"Read\":\n    last = input_node\[\"last\"].value()\n    nuke.root()\[\"last_frame\"].setValue(last)\nelse:\n    nuke.message(f\"Node above Dot30 is not a Read node, it's a \{input_node.Class()\}\")" +STARTLINE}
+}
+push $Ne259f400
+Write {
+ file "D:/WORK/CLIENTS/04_Ehrlich Brothers/OUT/\[file rootname \[file tail \[value root.name]]]_preview.mov"
+ file_type mov
+ mov64_format "mov (QuickTime / MOV)"
+ mov64_codec appr
+ mov_h264_codec_profile "High 4:2:0 8-bit"
+ mov64_pixel_format {
+  {0}
+  "yuv420p\tYCbCr 4:2:0 8-bit"
+ }
+ mov64_quality High
+ mov64_fast_start true
+ mov64_write_timecode true
+ mov64_gop_size 12
+ mov64_b_frames 0
+ mov64_bitrate 20000
+ mov64_bitrate_tolerance 4000000
+ mov64_quality_min 1
+ mov64_quality_max 3
+ colorspace rec709
+ checkHashOnRead false
+ version 14
+ in_colorspace scene_linear
+ out_colorspace scene_linear
+ ocioColorspace scene_linear
+ display default
+ view sRGB
+ name Write4
+ selected true
+ xpos 4803
+ ypos 3087
+}
+StickyNote {
+ inputs 0
+ name StickyNote4
+ label "\[file rootname \[file tail \[value root.name]]]_master.mov"
+ note_font_size 22
+ selected true
+ xpos 4064
+ ypos 3092
+}
+Group {
+ inputs 0
+ name VIEWER_INPUT
+ selected true
+ xpos 5028
+ ypos 3095
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos -22
+  ypos 192
+ }
+ ColorCorrect {
+  gamma 0.4
+  gain 3.75
+  name ColorCorrect1
+  xpos -22
+  ypos 232
+ }
+ Vectorfield {
+  vfield_file D:/WORK/CLIENTS/06_Eclettica_short/01_in/09_LUTs/ATI_LUT_VFX.cube
+  version 10
+  file_type cube
+  name lut
+  xpos -22
+  ypos 277
+ }
+ Output {
+  name Output1
+  xpos -22
+  ypos 377
+ }
+end_group

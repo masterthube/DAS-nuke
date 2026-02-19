@@ -1,0 +1,13 @@
+# Ignore the entire Cattery folder regardless of where it is
+**/Cattery/
+
+# Ignore the heavy model files specifically
+*.cat
+
+# Ignore Python caches
+**/__pycache__/
+*.pyc
+
+# Ignore Nuke UI and temp files
+.nuke/uistate.ini
+*.log

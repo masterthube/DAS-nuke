@@ -1,0 +1,36 @@
+set cut_paste_input [stack 0]
+version 16.0 v8
+push $cut_paste_input
+Group {
+ name VIEWER_INPUT
+ selected true
+ xpos 44
+ ypos 2851
+}
+ Input {
+  inputs 0
+  name Input1
+  xpos -22
+  ypos 192
+ }
+ ColorCorrect {
+  gamma 0.4
+  gain 3.75
+  name ColorCorrect1
+  xpos -22
+  ypos 232
+ }
+ Vectorfield {
+  vfield_file D:/WORK/CLIENTS/06_Eclettica_short/01_in/09_LUTs/ATI_LUT_VFX.cube
+  version 9
+  file_type cube
+  name lut
+  xpos -22
+  ypos 277
+ }
+ Output {
+  name Output1
+  xpos -22
+  ypos 377
+ }
+end_group

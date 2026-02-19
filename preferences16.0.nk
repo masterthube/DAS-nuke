@@ -1,0 +1,19 @@
+Preferences {
+ inputs 0
+ name Preferences
+ AutoSaveIdle 20
+ AutoSaveTime 60
+ localCachePath D:/CACHE/Nuke/
+ autoLocalCachePath D:/CACHE/Nuke/
+ LocalizationSizeLimit 500
+ LocalizationUpdatePeriodMinutes 180
+ localizationMode manual
+ CacheLimit 150
+ DiskCachePath D:/CACHE/Nuke/
+ diskCacheGB 300
+ PaintCacheGB 200
+ selectedGPUDeviceName "NVIDIA GeForce RTX 3060"
+ platformPathRemaps ""
+ postage_stamp_mode "Static frame"
+ defaultFlipbook "Flipbook Viewer"
+}

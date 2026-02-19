@@ -1,0 +1,13 @@
+set cut_paste_input [stack 0]
+version 16.0 v1
+push $cut_paste_input
+NoOp {
+ name SetLast
+ tile_color 0xff5f00ff
+ selected true
+ xpos 2275
+ ypos -391
+ hide_input true
+ addUserKnob {20 User}
+ addUserKnob {22 setLast l "Set Last Frame" t "Set last frame of readNode upstreaming Dot30" T "dot = nuke.toNode(\"Dot30\")\ninput_node = dot.input(0)\n\nif input_node.Class() == \"Read\":\n    last = input_node\[\"last\"].value()\n    nuke.root()\[\"last_frame\"].setValue(last)\nelse:\n    nuke.message(f\"Node above Dot30 is not a Read node, it's a \{input_node.Class()\}\")" +STARTLINE}
+}
