@@ -1,81 +1,78 @@
 import nuke
 import nukescripts
-import nuke.rotopaint as rp
 import math
 
 class FaceTrackUI(nukescripts.PythonPanel):
     def __init__(self, node):
-        super(FaceTrackUI, self).__init__('NukeFaceTrack v1.0', 'com.dario.FaceTrack')
-        self.node = node
-        self.range = nuke.String_Knob('range', 'Frame Range', '1-3')
+        super(FaceTrackUI, self).__init__('NukeFaceTrack Pro', 'com.dario.FaceTrack')
+        start = int(nuke.root().firstFrame())
+        end = int(nuke.root().lastFrame())
+        
+        self.range = nuke.String_Knob('range', 'Frame Range', f"{start}-{end}")
+        
+        # FIXED: Correct way to initialize Double_Knob with a value
+        self.smooth = nuke.Double_Knob('smooth', 'Smoothing')
+        self.smooth.setValue(0.5) 
+        self.smooth.setRange(0, 1)
+        
         self.addKnob(self.range)
+        self.addKnob(self.smooth)
 
-def get_stats(data):
-    l_pts, r_pts = data['l_eye'], data['r_eye']
-    lex = sum(p[0] for p in l_pts) / len(l_pts)
-    ley = sum(p[1] for p in l_pts) / len(l_pts)
-    rex = sum(p[0] for p in r_pts) / len(r_pts)
-    rey = sum(p[1] for p in r_pts) / len(r_pts)
+def get_face_metrics(data):
+    """Calculates center, eye-width for scale, and eye-angle for rotation."""
+    l_eye = data['l_eye'][1] 
+    r_eye = data['r_eye'][0] 
     
-    avg_x, avg_y = (lex + rex) / 2.0, (ley + rey) / 2.0
-    dx, dy = rex - lex, rey - ley
+    # Stable Center (Midpoint of eyes)
+    cx = (l_eye[0] + r_eye[0]) / 2.0
+    cy = (l_eye[1] + r_eye[1]) / 2.0
+    
+    dx = r_eye[0] - l_eye[0]
+    dy = r_eye[1] - l_eye[1]
     dist = math.sqrt(dx**2 + dy**2)
     angle = math.degrees(math.atan2(dy, dx))
-    return avg_x, avg_y, dist, angle
-
-def create_all_tools(face_session, node):
-    if not face_session:
-        nuke.message("No face data found.")
-        return
     
+    return cx, cy, dist, angle
+
+def create_all_tools(face_session, node, smooth_val=0.5):
+    if not face_session: return
     sorted_frames = sorted(face_session.keys())
-    start_f = sorted_frames[0]
+    ref_f = sorted_frames[0]
+
+    stab = nuke.nodes.Transform(name="Face_UV_Stabilizer", inputs=[node])
+    for k in ['translate', 'rotate', 'scale', 'center']:
+        stab[k].setAnimated()
+
+    rx, ry, rd, ra = get_face_metrics(face_session[ref_f])
     
-    roto = nuke.nodes.Roto(name="Face_Mesh_Track")
-    trans = nuke.nodes.Transform(name="Face_Matchmove")
-    roto.setXYpos(node.xpos() + 100, node.ypos() + 80)
-    trans.setXYpos(node.xpos() + 220, node.ypos() + 80)
-
-    curves = roto['curves']
-    root = curves.rootLayer
-    shape_map = {}
-
-    for group_name, pts in face_session[start_f].items():
-        shape = rp.Shape(curves)
-        shape.name = group_name
-        root.append(shape)
-        
-        ctrl_pts = []
-        for p in pts:
-            cp = rp.ShapeControlPoint()
-            # FIX: Must pass a single tuple/list, not two arguments
-            cp.center.setPosition((p[0], p[1])) 
-            shape.append(cp)
-            ctrl_pts.append(cp)
-        shape_map[group_name] = ctrl_pts
-
-    for k in ['translate', 'rotate', 'scale', 'center']: 
-        trans[k].setAnimated()
-        
-    rx, ry, rd, ra = get_stats(face_session[start_f])
+    # EMA Smoothing variables initialized to first frame
+    s_cx, s_cy, s_cd, s_ca = rx, ry, rd, ra
 
     for f in sorted_frames:
-        data = face_session[f]
-        cx, cy, cd, ca = get_stats(data)
+        data = face_session.get(f)
+        if not data: continue
+        
+        raw_cx, raw_cy, raw_cd, raw_ca = get_face_metrics(data)
+        
+        # Apply Exponential Moving Average smoothing
+        # Weight current frame vs historical average
+        f_weight = max(0.01, smooth_val)
+        s_cx = (raw_cx * f_weight) + (s_cx * (1.0 - f_weight))
+        s_cy = (raw_cy * f_weight) + (s_cy * (1.0 - f_weight))
+        s_cd = (raw_cd * f_weight) + (s_cd * (1.0 - f_weight))
+        s_ca = (raw_ca * f_weight) + (s_ca * (1.0 - f_weight))
 
-        # Update Roto
-        for group_name, pts in data.items():
-            if group_name in shape_map:
-                for i, p in enumerate(pts):
-                    # Using addPositionKey for animation
-                    shape_map[group_name][i].center.addPositionKey(f, (p[0], p[1]))
+        # Set Center (The pivot point)
+        stab['center'].setValueAt(s_cx, f, 0)
+        stab['center'].setValueAt(s_cy, f, 1)
+        
+        # Set Translation (Difference between Reference and Current Smoothed Center)
+        stab['translate'].setValueAt(rx - s_cx, f, 0)
+        stab['translate'].setValueAt(ry - s_cy, f, 1)
+        
+        # Scale and Rotate
+        scale_val = rd / s_cd if s_cd != 0 else 1.0
+        stab['scale'].setValueAt(scale_val, f)
+        stab['rotate'].setValueAt(ra - s_ca, f)
 
-        # Update SRT
-        trans['translate'].setValueAt(cx - rx, f, 0)
-        trans['translate'].setValueAt(cy - ry, f, 1)
-        trans['rotate'].setValueAt(ca - ra, f)
-        trans['scale'].setValueAt(cd / rd, f)
-        trans['center'].setValueAt(rx, f, 0)
-        trans['center'].setValueAt(ry, f, 1)
-
-    curves.changed()
+    print(f"Stabilization complete. Smoothing: {smooth_val}")

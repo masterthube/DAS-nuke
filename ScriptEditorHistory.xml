@@ -7,26 +7,32 @@ importlib.reload(core)
 importlib.reload(ui)
 
 def run_tool():
-    node = nuke.selectedNode()
-    if not node:
-        nuke.message(&quot;Select a node first.&quot;)
+    # Identify the selected node
+    try:
+        target_node = nuke.selectedNode()
+    except ValueError:
+        nuke.message(&quot;Please select a Read node first.&quot;)
         return
-        
-    p = ui.FaceTrackUI(node)
-    if p.showModalDialog():
-        rng_str = p.range.value()
-        try:
-            first, last = map(int, rng_str.split('-'))
-        except:
-            nuke.message(&quot;Invalid range. Use format: 1-10&quot;)
-            return
-            
-        proc = core.FaceProcessor()
-        data = proc.run_range(node, first, last)
-        
-        if data:
-            ui.create_all_tools(data, node)
-        else:
-            nuke.message(&quot;Processing failed: No faces detected.&quot;)
 
+    # Initialize the UI
+    p = FaceTrackUI(target_node)
+    
+    if p.showModalDialog():
+        # Initialize the processor here to fix the NameError
+        processor = FaceProcessor()
+        
+        # Get frame range from UI
+        fr = nuke.FrameRange(p.range.value())
+        
+        # Get smoothing value from UI
+        smooth_val = p.smooth.value()
+        
+        # Run the analysis
+        session = processor.run_range(target_node, fr.first(), fr.last())
+        
+        # Create the stabilized Transform and Roto
+        if session:
+            create_all_tools(session, target_node, smooth_val)
+        else:
+            nuke.message(&quot;No face data was captured.&quot;)
 run_tool()</script>

@@ -5,8 +5,8 @@ import os
 nuke.pluginAddPath("NukeSurvivalToolkit")
 nuke.pluginAddPath("pixelfudger3")
 nuke.pluginAddPath("stamps")
+nuke.pluginAddPath("DAS")
 nuke.pluginAddPath("C:/Users/dario/AppData/Local/Packages/PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0/LocalCache/local-packages/Python313/site-packages")
-# nuke.pluginAddPath("DS")
 
 try:
     import NukeFaceTrack.bridge as mp_bridge
