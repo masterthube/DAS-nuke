@@ -1,8 +1,14 @@
 import nuke
+import importlib
+import sys
 
 def run_tool():
-    # We import INSIDE the function. 
-    # This is "Lazy Loading" - it only happens when you click the button.
+    # Only reload if it actually exists in memory
+    if 'NukeFaceTrack.ui' in sys.modules:
+        importlib.reload(sys.modules['NukeFaceTrack.ui'])
+    if 'NukeFaceTrack.core' in sys.modules:
+        importlib.reload(sys.modules['NukeFaceTrack.core'])
+
     from . import ui
     from . import core
     
@@ -15,9 +21,10 @@ def run_tool():
     p = ui.FaceTrackUI(target_node)
     if p.showModalDialog():
         processor = core.FaceProcessor()
-        fr = nuke.FrameRange(p.range.value())
-        smooth_val = p.smooth.value()
+        fr_val = p.range.value()
+        first = int(fr_val.split('-')[0])
+        last = int(fr_val.split('-')[1])
         
-        session = processor.run_range(target_node, fr.first(), fr.last())
+        session = processor.run_range(target_node, first, last)
         if session:
-            ui.create_all_tools(session, target_node, smooth_val)
+            ui.create_all_tools(session, target_node, p.smooth.value())

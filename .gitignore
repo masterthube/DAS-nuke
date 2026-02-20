@@ -10,4 +10,6 @@
 
 # Ignore Nuke UI and temp files
 .nuke/uistate.ini
+.nuke/FileChooser_Favorites.pref
+.nuke/recent_files
 *.log
